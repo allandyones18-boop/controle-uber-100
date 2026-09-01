@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Uber 100" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>Controle Uber 100</title>
+  <style>
+    :root{--bg:#0b0f14;--card:#151b23;--muted:#9ca3af;--text:#f9fafb;--green:#22c55e;--red:#ef4444;--line:#26303d;--blue:#3b82f6}
+    *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:760px;margin:0 auto;padding:18px 16px 34px}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+    h1{font-size:26px;margin:0}.sub{font-size:13px;color:var(--muted);margin-top:4px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}.label{font-size:12px;color:var(--muted)}.value{font-size:28px;font-weight:800;margin-top:4px}
+    .hero{margin-top:10px}.next{font-size:18px;font-weight:700;margin-top:6px}.proj{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .proj .value{font-size:24px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.btn{border:0;border-radius:18px;padding:20px 12px;font-size:20px;font-weight:800;min-height:68px;color:white;cursor:pointer}.accept{background:var(--green)}.reject{background:var(--red)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.smallbtn{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-weight:700}.smallbtn:disabled{opacity:.4}
+    .history{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.chip{min-width:34px;height:34px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;border:1px solid var(--line)}.chip.a{background:rgba(34,197,94,.13);color:#86efac}.chip.r{background:rgba(239,68,68,.13);color:#fca5a5}
+    .status{color:var(--muted);font-size:13px;margin-top:10px;line-height:1.45}.setup{margin-top:10px}.setup details{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}.setup summary{font-weight:800;cursor:pointer}.setupbox{margin-top:12px}.inputrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.inputrow input{width:100%;background:#0f141b;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px}.primary{margin-top:10px;background:var(--blue);color:white;border:0;border-radius:12px;padding:12px 14px;font-weight:800;width:100%}
+    .hint{font-size:12px;color:var(--muted);margin-top:8px}.warn{color:#fbbf24}.ok{color:#86efac}@media(min-width:640px){.grid{grid-template-columns:repeat(4,1fr)}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div><h1>Controle Uber 100</h1><div class="sub">Janela móvel das últimas 100 solicitações</div></div></div>
+
+  <section class="grid">
+    <div class="card"><div class="label">Taxa atual</div><div id="rate" class="value">0%</div></div>
+    <div class="card"><div class="label">Registradas</div><div id="count" class="value">0/100</div></div>
+    <div class="card"><div class="label">Aceitas</div><div id="accepted" class="value">0</div></div>
+    <div class="card"><div class="label">Recusadas</div><div id="rejected" class="value">0</div></div>
+  </section>
+
+  <section class="card hero">
+    <div class="label">Próxima a sair da janela</div>
+    <div id="nextOut" class="next">—</div>
+    <div class="proj">
+      <div><div class="label">Se aceitar próxima</div><div id="ifAccept" class="value">0%</div></div>
+      <div><div class="label">Se recusar próxima</div><div id="ifReject" class="value">0%</div></div>
+    </div>
+  </section>
+
+  <section class="actions">
+    <button id="acceptBtn" class="btn accept">ACEITEI</button>
+    <button id="rejectBtn" class="btn reject">RECUSEI</button>
+  </section>
+
+  <section class="card">
+    <div class="row" style="justify-content:space-between">
+      <div><strong>Histórico recente</strong><div class="label">Mostra as 30 mais recentes</div></div>
+      <div class="row"><button id="undoBtn" class="smallbtn">Desfazer</button><button id="resetBtn" class="smallbtn">Zerar</button></div>
+    </div>
+    <div id="history" class="history"></div>
+    <div id="status" class="status"></div>
+  </section>
+
+  <section class="setup">
+    <details>
+      <summary>Configurar as 100 atuais</summary>
+      <div class="setupbox">
+        <div class="inputrow">
+          <label><span class="label">Aceitas</span><input id="setupA" type="number" min="0" max="100" value="0"></label>
+          <label><span class="label">Recusadas</span><input id="setupR" type="number" min="0" max="100" value="0"></label>
+        </div>
+        <button id="fillBtn" class="primary">Criar janela inicial</button>
+        <div class="hint warn">Atenção: informar apenas quantidades não revela a ordem real das 100 solicitações. Para prever exatamente qual sai primeiro, você precisa registrar a sequência A/R na ordem correta.</div>
+      </div>
+    </details>
+  </section>
+</div>
+<script>
+const KEY='uber100-history-v1';
+let state=[];
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'[]');if(Array.isArray(saved))state=saved.filter(x=>x==='A'||x==='R').slice(-100)}catch(e){}
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function pct(a,t){return t?Math.round((a/t)*100):0}
+function projected(v){const t=state.slice();t.push(v);if(t.length>100)t.shift();return pct(t.filter(x=>x==='A').length,t.length)}
+function render(){
+ const total=state.length,a=state.filter(x=>x==='A').length,r=total-a;
+ $('rate').textContent=pct(a,total)+'%'; $('count').textContent=total+'/100'; $('accepted').textContent=a; $('rejected').textContent=r;
+ $('nextOut').textContent=total<100?'Ainda não há saída':(state[0]==='A'?'ACEITA':'RECUSADA');
+ $('ifAccept').textContent=projected('A')+'%'; $('ifReject').textContent=projected('R')+'%';
+ $('history').innerHTML=''; state.slice(-30).forEach(x=>{const s=document.createElement('span');s.className='chip '+x.toLowerCase();s.textContent=x;$('history').appendChild(s)});
+ $('undoBtn').disabled=!total;
+ $('status').textContent=!total?'Comece marcando manualmente cada nova solicitação.':total<100?`Faltam ${100-total} registros para completar a primeira janela.`:'Janela completa: cada nova marcação substitui automaticamente a mais antiga.';
+}
+function add(v){state.push(v);if(state.length>100)state.shift();save();render()}
+$('acceptBtn').onclick=()=>add('A'); $('rejectBtn').onclick=()=>add('R');
+$('undoBtn').onclick=()=>{if(state.length){state.pop();save();render()}};
+$('resetBtn').onclick=()=>{if(confirm('Apagar todo o histórico salvo?')){state=[];save();render()}};
+$('fillBtn').onclick=()=>{let a=Math.max(0,Math.min(100,parseInt($('setupA').value||'0',10)));let r=Math.max(0,Math.min(100,parseInt($('setupR').value||'0',10)));if(a+r>100){alert('Aceitas + recusadas não pode passar de 100.');return}state=[...Array(a).fill('A'),...Array(r).fill('R')];save();render();alert('Janela criada. Como a ordem foi aproximada, a previsão de qual sai primeiro só fica exata depois que você registrar uma sequência real.')};
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+render();
+</script>
+</body>
+</html>
