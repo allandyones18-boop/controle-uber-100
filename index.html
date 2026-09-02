@@ -13,7 +13,7 @@
   <style>
     :root{--bg:#0b0f14;--card:#151b23;--muted:#9ca3af;--text:#f9fafb;--green:#22c55e;--red:#ef4444;--line:#26303d;--blue:#3b82f6}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
-    .wrap{max-width:760px;margin:0 auto;padding:18px 16px 34px}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+    .quickbar{position:sticky;top:0;z-index:9999;background:rgba(11,15,20,.96);backdrop-filter:blur(10px);padding:8px 12px;border-bottom:1px solid var(--line)}.quickbar-inner{max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}.quickbtn{border:0;border-radius:12px;min-height:48px;color:#fff;font-size:17px;font-weight:900;cursor:pointer}.quickbtn:active{transform:scale(.98)}.wrap{max-width:760px;margin:0 auto;padding:14px 16px 34px}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
     h1{font-size:26px;margin:0}.sub{font-size:13px;color:var(--muted);margin-top:4px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
     .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}.label{font-size:12px;color:var(--muted)}.value{font-size:28px;font-weight:800;margin-top:4px}
     .hero{margin-top:10px}.next{font-size:18px;font-weight:700;margin-top:6px}.proj{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
@@ -25,6 +25,7 @@
   </style>
 </head>
 <body>
+<div class="quickbar"><div class="quickbar-inner"><button id="topRejectBtn" class="quickbtn reject">✕ REJEITAR</button><button id="topAcceptBtn" class="quickbtn accept">✓ ACEITAR</button></div></div>
 <div class="wrap">
   <div class="top"><div><h1>Controle Uber 100</h1><div class="sub">Janela móvel das últimas 100 solicitações</div></div></div>
 
@@ -90,7 +91,7 @@ function render(){
  $('status').textContent=!total?'Comece marcando manualmente cada nova solicitação.':total<100?`Faltam ${100-total} registros para completar a primeira janela.`:'Janela completa: cada nova marcação substitui automaticamente a mais antiga.';
 }
 function add(v){state.push(v);if(state.length>100)state.shift();save();render()}
-$('acceptBtn').onclick=()=>add('A'); $('rejectBtn').onclick=()=>add('R');
+$('acceptBtn').onclick=()=>add('A'); $('rejectBtn').onclick=()=>add('R'); $('topAcceptBtn').onclick=()=>add('A'); $('topRejectBtn').onclick=()=>add('R');
 $('undoBtn').onclick=()=>{if(state.length){state.pop();save();render()}};
 $('resetBtn').onclick=()=>{if(confirm('Apagar todo o histórico salvo?')){state=[];save();render()}};
 $('fillBtn').onclick=()=>{let a=Math.max(0,Math.min(100,parseInt($('setupA').value||'0',10)));let r=Math.max(0,Math.min(100,parseInt($('setupR').value||'0',10)));if(a+r>100){alert('Aceitas + recusadas não pode passar de 100.');return}state=[...Array(a).fill('A'),...Array(r).fill('R')];save();render();alert('Janela criada. Como a ordem foi aproximada, a previsão de qual sai primeiro só fica exata depois que você registrar uma sequência real.')};
